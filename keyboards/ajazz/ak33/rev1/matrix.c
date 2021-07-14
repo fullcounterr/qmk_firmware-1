@@ -144,13 +144,13 @@ void matrix_init(void) {
     SN_CT16B0->MR3 = 0xFF;
 
 	// Set prescale value
-    SN_CT16B0->PRE = 0x30;
-    SN_CT16B1->PRE = 0x30;
-    SN_CT16B2->PRE = 0x30;
-    SN_CT32B0->PRE = 0x30;
-    SN_CT32B1->PRE = 0x30;
-    SN_CT32B2->PRE = 0x30;
-
+    SN_CT16B0->PRE = 0x28;
+    SN_CT16B1->PRE = 0x28;
+    SN_CT16B2->PRE = 0x28;
+    SN_CT32B0->PRE = 0x28;
+    SN_CT32B1->PRE = 0x28;
+    SN_CT32B2->PRE = 0x28;
+	
 	// Enable PWM on all timers
 	SN_CT16B0->PWMCTRL =
 		(mskCT16_PWM0EN_EN \
@@ -298,6 +298,9 @@ OSAL_IRQ_HANDLER(SN32_CT16B0_HANDLER) {
     // Turn the selected row off
     writePinLow(led_row_pins[current_row]);
 
+	// Turn the next row on
+    current_row = (current_row + 1) % LED_MATRIX_ROWS_HW;
+
     // Read the key matrix
     for (uint8_t col_index = 0; col_index < MATRIX_COLS; col_index++) {
         // Enable the column
@@ -320,9 +323,6 @@ OSAL_IRQ_HANDLER(SN32_CT16B0_HANDLER) {
             writePinHigh(col_pins[col_index]);
         }
     }
-
-    // Turn the next row on
-    current_row = (current_row + 1) % LED_MATRIX_ROWS_HW;
 
     uint8_t row_idx = hw_row_to_matrix_row[current_row];
     uint16_t row_ofst = row_ofsts[row_idx];
@@ -512,17 +512,6 @@ OSAL_IRQ_HANDLER(SN32_CT16B0_HANDLER) {
 
     // Set match interrupts and TC rest for CT16B0, which is used to generate interrupt
     SN_CT16B0->MCTRL = (mskCT16_MR3IE_EN|mskCT16_MR3STOP_EN);
-
-    // COL match register
-    SN_CT16B0->MR3 = 0xFF;
-
-	// Set prescale value
-    SN_CT16B0->PRE = 0x30;
-    SN_CT16B1->PRE = 0x30;
-    SN_CT16B2->PRE = 0x30;
-    SN_CT32B0->PRE = 0x30;
-    SN_CT32B1->PRE = 0x30;
-    SN_CT32B2->PRE = 0x30;
 
     writePinHigh(led_row_pins[current_row]);
 
